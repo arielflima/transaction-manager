@@ -30,6 +30,26 @@ class CreateTransactionService {
         throw new AppError('Value for outcome is bigger than total balance!');
       }
     }
+
+    let categoryExists = await categoryRepository.findOne({
+      where: category,
+    });
+
+    if (!categoryExists) {
+      categoryExists = categoryRepository.create({ title: category });
+      await categoryRepository.save(categoryExists);
+    }
+
+    const transaction = transactionsRepository.create({
+      title,
+      value,
+      type,
+      category_id: categoryExists.id,
+    });
+
+    await transactionsRepository.save(transaction);
+
+    return transaction;
   }
 }
 
